@@ -1,0 +1,656 @@
+:root {
+  /* Set from the frame size and the STIC's pixel shape. */
+  --screen-aspect: 1.4385;
+  --screen-width: min(96vw, calc(68vh * var(--screen-aspect)));
+  --accent: #d9a441;
+  --accent-soft: #ecc879;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #111;
+  color: #888;
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  box-sizing: border-box;
+}
+
+.screen-frame {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+#screen {
+  display: block;
+  width: var(--screen-width);
+  aspect-ratio: var(--screen-aspect);
+  image-rendering: pixelated;
+  outline: none;
+  background: #000;
+}
+
+.screen-frame:fullscreen {
+  align-items: center;
+  background: #000;
+}
+
+.screen-frame:fullscreen #screen {
+  width: min(100vw, calc(100vh * var(--screen-aspect)));
+}
+
+.paused-label {
+  display: none;
+  position: absolute;
+  top: 50%;
+  margin: 0;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 70%);
+  color: #fff;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.screen-frame.paused .paused-label {
+  display: block;
+}
+
+/* ROM setup: shown in place of the screen until the system ROMs are loaded */
+
+body.needs-roms #screen,
+body.needs-roms .toolbar,
+body.needs-roms .paused-label,
+body.needs-roms .cart-panel,
+body.needs-roms .controls {
+  display: none !important;
+}
+
+.rom-setup {
+  width: var(--screen-width);
+  min-height: calc(var(--screen-width) / var(--screen-aspect));
+  box-sizing: border-box;
+  padding: 1.5rem 1.75rem;
+  border: 2px dashed var(--accent);
+  border-radius: 10px;
+  background: #1a1a1a;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.rom-setup[hidden] {
+  display: none;
+}
+
+.rom-setup p {
+  margin: 0;
+}
+
+.rom-setup h1 {
+  margin: 0 0 0.5rem;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.rom-setup-lead {
+  color: #bbb;
+  line-height: 1.45;
+}
+
+.rom-setup code {
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 0.85em;
+}
+
+.rom-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rom-list li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #3d3d3d;
+  border-left: 4px solid #ff8a80;
+  border-radius: 6px;
+  background: #202020;
+}
+
+.rom-list li.optional {
+  border-left-color: #c9a227;
+}
+
+.rom-list li[data-state='loaded'] {
+  border-left-color: #9ad284;
+}
+
+.rom-list li[data-state='warning'] {
+  border-left-color: #c9a227;
+}
+
+.rom-heading strong {
+  color: #eee;
+  font-size: 1rem;
+}
+
+.rom-need {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+  background: #3d2424;
+  color: #ff8a80;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.optional .rom-need {
+  background: #3d3524;
+  color: #c9a227;
+}
+
+.rom-detail,
+.rom-names {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.rom-status {
+  color: #ff8a80;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.optional[data-state='missing'] .rom-status,
+[data-state='warning'] .rom-status {
+  color: #c9a227;
+}
+
+[data-state='loaded'] .rom-status {
+  color: #9ad284;
+}
+
+.rom-tip {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.rom-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.rom-setup button {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #eee;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rom-setup button.primary,
+.rom-setup button[data-action='start']:not(:disabled) {
+  border-color: var(--accent);
+  background: #4a3a17;
+  color: #fff;
+}
+
+.rom-setup button:hover:not(:disabled),
+.rom-setup button:focus-visible {
+  border-color: var(--accent-soft);
+  outline: none;
+}
+
+.rom-setup button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.rom-message:not(:empty) {
+  margin-top: 0.75rem;
+  color: #ff8a80;
+}
+
+.rom-storage-note:not(:empty) {
+  margin-top: 0.75rem;
+  color: #c9a227;
+}
+
+.rom-drop-hint {
+  display: none;
+  padding: 2rem 0;
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.rom-setup.drag-over {
+  border-style: solid;
+  background: #2a2414;
+}
+
+.rom-setup.drag-over > :not(.rom-drop-hint) {
+  display: none;
+}
+
+.rom-setup.drag-over .rom-drop-hint {
+  display: block;
+}
+
+#status {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.site-links,
+.emulator-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.25rem;
+  font-size: 0.85rem;
+}
+
+.site-links a,
+.emulator-links a {
+  color: var(--accent-soft);
+  text-decoration: none;
+}
+
+.site-links a:hover,
+.site-links a:focus-visible,
+.emulator-links a:hover,
+.emulator-links a:focus-visible {
+  text-decoration: underline;
+}
+
+.emulator-links strong {
+  color: #ddd;
+  font-weight: 600;
+}
+
+/* Buttons and fields */
+
+button,
+select {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #eee;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+select {
+  max-width: 16rem;
+  padding: 0.35rem 0.4rem;
+}
+
+button:hover,
+button:focus-visible,
+select:focus-visible {
+  border-color: var(--accent) !important;
+  outline: none;
+}
+
+button:disabled,
+select:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+input[type='checkbox'],
+input[type='range'] {
+  accent-color: var(--accent);
+}
+
+/* Toolbar */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  width: var(--screen-width);
+}
+
+.toolbar-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #bbb;
+}
+
+.toolbar-message {
+  font-size: 0.85rem;
+  color: #9ad284;
+}
+
+.toolbar-message.error {
+  color: #ff8a80;
+}
+
+/* Cartridge panel */
+
+.cart-panel {
+  width: var(--screen-width);
+  box-sizing: border-box;
+  padding: 1rem 1.25rem;
+  border: 2px dashed #555;
+  border-radius: 10px;
+  background: #1a1a1a;
+  color: #ccc;
+  text-align: center;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.cart-panel p {
+  margin: 0;
+}
+
+.cart-empty,
+.cart-loaded {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cart-panel[data-roms='loaded'][data-state='empty'] .cart-empty,
+.cart-panel[data-roms='loaded'][data-state='loaded'] .cart-loaded {
+  display: flex;
+}
+
+.cart-panel[data-roms='loaded'][data-state='loaded'] {
+  border-style: solid;
+  border-color: #3d3d3d;
+}
+
+.cart-title {
+  font-size: 1.05rem;
+  color: #eee;
+}
+
+.cart-hint {
+  max-width: 34rem;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.cart-file {
+  color: #888;
+}
+
+.cart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cart-actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.cart-details {
+  max-width: 40rem;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.cart-drop-hint {
+  display: none;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.cart-panel.drag-over {
+  border-style: solid;
+  border-color: var(--accent);
+  background: #2a2414;
+}
+
+.cart-panel.drag-over > :not(.cart-drop-hint) {
+  display: none !important;
+}
+
+.cart-panel.drag-over .cart-drop-hint {
+  display: block;
+}
+
+.zip-files:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem !important;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.bundled-games-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem !important;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.cart-panel[data-roms='missing'] .bundled-games {
+  display: none;
+}
+
+.game-info {
+  margin-top: 0.35rem !important;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.game-info a {
+  color: var(--accent-soft);
+}
+
+.zip-buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.zip-buttons button.current {
+  border-color: var(--accent);
+}
+
+.cart-message:not(:empty) {
+  margin-top: 0.6rem !important;
+  color: #ff8a80;
+  font-size: 0.9rem;
+}
+
+.cart-message.warning {
+  color: #c9a227;
+}
+
+/* Controls and the on-screen keypad */
+
+.controls {
+  width: var(--screen-width);
+  box-sizing: border-box;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+}
+
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.controls input[type='range'] {
+  width: 6rem;
+}
+
+.sound-hint {
+  color: #c9a227;
+}
+
+.keypad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.keypad[hidden] {
+  display: none;
+}
+
+/* The disc: press towards a direction (16 of them). */
+.keypad-disc {
+  position: relative;
+  width: 7.5rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #6b5a36, #3a2f19 70%);
+  box-shadow:
+    inset 0 0 0 2px #8a7443,
+    0 2px 6px rgb(0 0 0 / 50%);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.keypad-disc::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px dashed rgb(236 200 121 / 35%);
+}
+
+.keypad-disc-knob {
+  position: absolute;
+  top: 35%;
+  left: 35%;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ecc879, #a07a2c);
+  transition: transform 0.05s;
+  pointer-events: none;
+}
+
+.keypad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 3.4rem);
+  gap: 0.35rem;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: linear-gradient(#262626, #1b1b1b);
+  box-shadow: inset 0 0 0 1px #3a3a3a;
+}
+
+.keypad-keys button {
+  height: 2.4rem;
+  padding: 0;
+  font-size: 1.05rem;
+  touch-action: none;
+}
+
+.keypad-keys button[data-key='clear'],
+.keypad-keys button[data-key='enter'] {
+  font-size: 0.8rem;
+}
+
+.keypad-sides {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.keypad-sides button {
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #ecc879, #8a6a24);
+  border-color: #5c4615;
+  color: #1a1408;
+  font-weight: 600;
+  touch-action: none;
+}
+
+.keypad button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #111;
+}
+
+.gamepad-status {
+  margin: 0.5rem 0 0;
+  color: #9ad284;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.controls-hint {
+  margin: 0.5rem 0 0;
+  color: #777;
+  font-size: 0.8rem;
+  text-align: center;
+}

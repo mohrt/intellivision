@@ -1,0 +1,66 @@
+# Intellivision in the browser
+
+**Play it at [mohrt.github.io/intellivision](https://mohrt.github.io/intellivision/)**
+
+A Mattel Intellivision emulator written from scratch in TypeScript:
+
+- **CPU:** the General Instrument CP1610, every instruction, with the cycle counts jzIntv uses.
+- **STIC video:** the background table in Color Stack mode (including Colored Squares cards) and Foreground/Background mode, GROM and GRAM cards, the eight moving objects with their sizes, flips and priority, the delay registers and edge masking, and the collision registers (between objects, with the background and with the border).
+- **Timing:** the STIC's frame as jzIntv measured it: the interrupt at the start of vertical blank, the windows in which the CPU can reach the STIC's registers and GRAM, and the bus requests that stop the CPU while the STIC fetches each row of cards. A frame with no write to the display-enable register is blank.
+- **Sound:** the AY-3-8914, with its envelope scaling and noise.
+- **Hand controllers:** both, with the 16-direction disc, the 12-key keypad and the action buttons.
+
+Drop a `.rom`, `.bin` or `.int` file (or a `.zip` containing one) onto the page to play it.
+
+## The system ROMs
+
+Every Intellivision game runs on the console's Executive ROM (EXEC) and draws with the Graphics ROM (GROM). They are still under copyright, so the site never serves them. On the first visit the page shows a setup panel in place of the screen, asking for your own images:
+
+- **EXEC:** exactly 8,192 bytes, often called `exec.bin`. Mattel's has the CRC-32 `CBCE86F7`. Intellivision II dumps of 8,704 bytes work too.
+- **GROM:** exactly 2,048 bytes, often called `grom.bin`. Mattel's has the CRC-32 `683A4158`.
+
+Both can be chosen at once, or as a `.zip` (MAME's `intv.zip` works). They are kept in the browser's storage, so later visits start straight away. **System ROMs...** in the toolbar replaces or forgets them. ROMs other than Mattel's are accepted after a warning.
+
+No commercial games are included either. Use images of cartridges you own, or homebrews whose authors allow it.
+
+## Cartridges
+
+- **`.rom`** (Intellicart) images say where their ROM and RAM go.
+- **`.bin` and `.int`** images are raw big-endian words. With a jzIntv `.cfg` file (in the same `.zip`, with the same name) its `[mapping]`, `[memattr]` RAM and JLP RAM are used. Without one, games with an unusual memory map are recognised by their checksum, from MAME's `intv.hsi` (CC0). Everything else gets the usual map: 8K words at $5000, then $D000 and $F000.
+- Titles come from jzIntv's public-domain list of cartridge checksums.
+
+## Free games
+
+`npm run fetch:games` downloads the freely licensed games listed in `scripts/games-catalog.json` into `public/games/`, where they appear in a "Free games" picker. Each entry has its credit, licence, source and checksum:
+
+- **4-Tris** by Joe Zbiciak (GNU GPL v2), falling blocks.
+- **Runner-Z** by Josue (GNU GPL v3), a lane-changing runner written in IntyBASIC.
+- **Space Versus** by Marco A. Marrero (MIT), a space duel for one or two players, second in AtariAge's IntyBASIC contest.
+
+## Controls
+
+- **Keyboard** (player 1, the left controller): arrow keys for the disc, Space or Z for the top action buttons, X and C for the lower left and right ones. The number keys are the keypad, with `-` or Backspace for Clear and `=` or Enter for Enter (the numpad works too). P or Pause pauses.
+- **Gamepads** work as soon as you press one of their buttons: the first is player 1, the second player 2 (the right controller). The D-pad, or the left stick in all 16 directions, is the disc. A is the top buttons, X and B the lower left and right. Y and Start are Enter, Back/Select is Clear, and the shoulder buttons and triggers are 1 to 4.
+- **On-screen controller**: the disc (press towards a direction), the keypad and the action buttons, for player 1 or player 2. It works with a mouse or by touch.
+
+## Console
+
+The toolbar has pause, the console's reset button, power cycle, full screen and the TV standard (NTSC or PAL). Save states keep the whole console, cartridge included, in the browser. They can be exported and imported as `.intvstate` files.
+
+Not covered: the Intellivoice (games that talk play without speech), the Entertainment Computer System, the Keyboard Component, paged and bank-switched ROMs, and JLP's accelerators and flash saves.
+
+## Development
+
+```sh
+npm install
+npm run fetch:games     # optional: the free games into public/games/
+npm run dev             # http://localhost:5173
+npm test
+npm run build:carts     # rebuilds src/cart/known-carts.ts from its pinned sources
+```
+
+`npm test` also boots the free games and any cartridges you put in `roms/` (never committed), given your own system ROMs there as `exec.bin` and `grom.bin`, or as `INTV_EXEC=/path/to/exec.bin INTV_GROM=/path/to/grom.bin`. A `.bin` there takes the `.cfg` with the same name. `SHOTS=/tmp/shots npm test` saves screenshots.
+
+## Deploying
+
+`.github/workflows/pages.yml` downloads the free games, tests and builds the site, and deploys it to GitHub Pages on every push to `main` (Pages source: "GitHub Actions").

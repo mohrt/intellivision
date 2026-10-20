@@ -1,0 +1,37 @@
+{
+  "games": [
+    {
+      "title": "4-Tris",
+      "file": "4-tris.int",
+      "url": "https://raw.githubusercontent.com/annoybot/jzintv/80a4db13b0427828b33f3d47f6d102cefbe31d4e/rom/4-TRIS%20by%20Joseph%20Zbiciak%20(2001).int",
+      "sha256": "0898490a9169de318d1a55e19f9250cf8de57d79f7f51b429a4160264e3ac6fb",
+      "credit": "Joe Zbiciak",
+      "license": "GNU GPL v2",
+      "licenseFile": "https://raw.githubusercontent.com/FujiNetWIFI/jzintv/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/4-tris/COPYING.txt",
+      "sourceUrl": "https://github.com/FujiNetWIFI/jzintv/blob/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/4-tris/4-tris.asm",
+      "hint": "Falling blocks. On the title screen press 1-9 (or Clear for 10) for the starting level, or 0 for the sound test. The disc moves, the action buttons rotate, 7 or 9 mutes the music."
+    },
+    {
+      "title": "Runner-Z",
+      "file": "runner-z.rom",
+      "url": "https://raw.githubusercontent.com/wzjoriv/Runner-Z/71872104fec36914767e901b1d76c95cff28ad7b/bin/runnerZ.rom",
+      "sha256": "e7ffcd5552e5836723c09180efb83855bd4ac94a1dba8479b7aa18ee883c55e9",
+      "credit": "Josue (wzjoriv)",
+      "license": "GNU GPL v3",
+      "licenseFile": "https://raw.githubusercontent.com/wzjoriv/Runner-Z/71872104fec36914767e901b1d76c95cff28ad7b/LICENSE",
+      "sourceUrl": "https://github.com/wzjoriv/Runner-Z",
+      "hint": "Run down the road collecting coins: left and right change lanes, up jumps."
+    },
+    {
+      "title": "Space Versus",
+      "file": "space-versus.rom",
+      "url": "https://raw.githubusercontent.com/marcomarrero/SpaceVersus-IntyBasic/49eb66a6a85e7483ee25e135f3f6c469ad27d4fe/SpaceVersus/mmsv_20160228.rom",
+      "sha256": "4d2910f424871fbc181ed01b6db03ed9d310efd9bd7203a00dd1b2e97e2bc75a",
+      "credit": "Marco A. Marrero",
+      "license": "MIT",
+      "licenseFile": "https://raw.githubusercontent.com/marcomarrero/SpaceVersus-IntyBasic/49eb66a6a85e7483ee25e135f3f6c469ad27d4fe/LICENSE",
+      "sourceUrl": "https://github.com/marcomarrero/SpaceVersus-IntyBasic",
+      "hint": "A space duel against the computer or a second player, second in AtariAge's IntyBASIC contest: 1 or 2 for the number of players, Enter for the options. The disc moves your ship and the action buttons fire."
+    }
+  ]
+}

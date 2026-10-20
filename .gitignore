@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+
+# The EXEC, GROM and cartridge images are copyrighted and never committed:
+# your own go in roms/, for the tests only.
+/roms/
+# Free games are downloaded by npm run fetch:games.
+public/games/

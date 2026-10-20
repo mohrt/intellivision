@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#111111" />
+    <title>Intellivision</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main>
+      <div class="screen-frame">
+        <canvas id="screen" width="176" height="208" tabindex="0" aria-label="Intellivision screen"></canvas>
+        <p class="paused-label">Paused</p>
+        <section id="rom-setup" class="rom-setup" aria-labelledby="rom-setup-title" hidden>
+          <h1 id="rom-setup-title">First, load the Intellivision system ROMs</h1>
+          <p class="rom-setup-lead">
+            The Intellivision can't switch on without the two ROM chips Mattel built into it: every game runs on the
+            EXEC and draws with the GROM's characters. They are still under copyright, so they aren't included here:
+            choose or drop your own ROM image files. They stay in this browser and are never sent anywhere. The browser
+            remembers them, so you only need to do this once.
+          </p>
+          <ul class="rom-list">
+            <li data-rom="exec">
+              <p class="rom-heading"><strong>Executive ROM (EXEC)</strong> <span class="rom-need">Required</span></p>
+              <p class="rom-detail">
+                The console's operating system. Exactly 8 KB (8,192 bytes); Mattel's has the CRC-32 checksum
+                <code>CBCE86F7</code>.
+              </p>
+              <p class="rom-names">Often named <code>exec.bin</code> or <code>exec.rom</code></p>
+              <p class="rom-status"></p>
+            </li>
+            <li data-rom="grom">
+              <p class="rom-heading"><strong>Graphics ROM (GROM)</strong> <span class="rom-need">Required</span></p>
+              <p class="rom-detail">
+                The 256 built-in characters and shapes. Exactly 2 KB (2,048 bytes); Mattel's has the CRC-32 checksum
+                <code>683A4158</code>.
+              </p>
+              <p class="rom-names">Often named <code>grom.bin</code> or <code>grom.rom</code></p>
+              <p class="rom-status"></p>
+            </li>
+          </ul>
+          <p class="rom-tip">
+            Pick both files at once, or a .zip containing them (MAME's <code>intv.zip</code> works). These are not
+            games: once the console is on, cartridge images (<code>.rom</code>, <code>.bin</code>, <code>.int</code>)
+            go in the cartridge slot below the screen.
+          </p>
+          <div class="rom-actions">
+            <button type="button" class="primary" data-action="choose-roms">Choose ROM files...</button>
+            <button type="button" data-action="start" disabled>Switch the console on</button>
+            <button type="button" data-action="back" hidden>Back to the console</button>
+            <button type="button" data-action="forget-roms" hidden>Forget these ROMs</button>
+          </div>
+          <p class="rom-message" role="alert"></p>
+          <p class="rom-storage-note"></p>
+          <p class="rom-drop-hint">Release to load these ROMs</p>
+          <input type="file" name="rom-files" multiple hidden />
+        </section>
+      </div>
+
+      <section id="toolbar" class="toolbar" aria-label="Console">
+        <span class="toolbar-group">
+          <button type="button" data-action="pause" title="P or the Pause key">Pause</button>
+          <button type="button" data-action="reset" title="The console's reset button: restarts the game">Reset</button>
+          <button type="button" data-action="power" title="Switch the console off and on again">Power cycle</button>
+          <button type="button" data-action="fullscreen" title="Esc leaves full screen">Full screen</button>
+          <button type="button" data-action="change-roms" title="Replace, check or forget the EXEC and GROM">
+            System ROMs...
+          </button>
+          <select name="tv" aria-label="TV standard">
+            <option value="ntsc" selected>NTSC (60 Hz)</option>
+            <option value="pal">PAL (50 Hz)</option>
+          </select>
+        </span>
+        <span class="toolbar-group">
+          <button type="button" data-action="save-state" title="Save the whole console, to come back to later">
+            Save state
+          </button>
+          <select name="state-slot" aria-label="Save states"></select>
+          <button type="button" data-action="load-state">Load</button>
+          <button type="button" data-action="delete-state">Delete</button>
+          <button type="button" data-action="export-state" title="Download the current state as a file">Export</button>
+          <button type="button" data-action="import-state">Import...</button>
+        </span>
+        <span class="toolbar-message" role="status"></span>
+        <input type="file" name="state-file" accept=".intvstate" hidden />
+      </section>
+
+      <section id="cart-panel" class="cart-panel" data-state="empty" data-roms="missing" aria-label="Cartridge slot">
+        <div class="cart-empty">
+          <p class="cart-title">Drop a .rom, .bin, .int or .zip cartridge image here</p>
+          <button type="button" data-action="choose">Choose file...</button>
+        </div>
+        <div class="cart-loaded">
+          <p class="cart-title"><span class="cart-name"></span> <span class="cart-file"></span></p>
+          <p class="cart-details"></p>
+          <div class="cart-actions">
+            <button type="button" data-action="choose">Change cartridge</button>
+            <button type="button" data-action="eject">Eject</button>
+          </div>
+        </div>
+        <p class="zip-files" hidden>In this zip: <span class="zip-buttons"></span></p>
+        <div class="bundled-games" hidden>
+          <p class="bundled-games-row">
+            Free games:
+            <select name="bundled-game" aria-label="Free games"></select>
+            <button type="button" data-action="play-game">Play</button>
+          </p>
+          <p class="game-info"></p>
+        </div>
+        <p class="cart-drop-hint">Release to insert</p>
+        <p class="cart-message" role="status"></p>
+        <input type="file" name="cart-file" accept=".rom,.bin,.int,.itv,.zip,.intvstate" hidden />
+      </section>
+
+      <section id="controls" class="controls" aria-label="Hand controllers">
+        <div class="controls-row">
+          <label><input type="checkbox" name="show-keypad" checked /> On-screen controller</label>
+          <label>
+            for
+            <select name="keypad-player" aria-label="Which hand controller the on-screen one presses">
+              <option value="0" selected>Player 1 (left)</option>
+              <option value="1">Player 2 (right)</option>
+            </select>
+          </label>
+          <label><input type="checkbox" name="sound" checked /> Sound</label>
+          <label>
+            Volume
+            <input type="range" name="volume" min="0" max="1" step="0.05" value="0.8" />
+          </label>
+          <span class="sound-hint" hidden>Click or press a key to start sound</span>
+        </div>
+        <div id="keypad" class="keypad">
+          <div class="keypad-disc" aria-label="Disc: press towards a direction">
+            <span class="keypad-disc-knob"></span>
+          </div>
+          <div class="keypad-keys" aria-label="Keypad"></div>
+          <div class="keypad-sides" aria-label="Action buttons"></div>
+        </div>
+        <p class="gamepad-status" aria-live="polite"></p>
+        <p class="controls-hint">
+          Keyboard (player 1): arrow keys for the disc, Space or Z for the top action buttons, X and C for the lower
+          left and right ones, the number keys for the keypad, with - or Backspace for Clear and = or Enter for Enter.
+          Gamepads work as soon as you press a button; the first is player 1, the second player 2. The stick turns the
+          disc in all 16 directions. A is the top buttons, X and B the lower left and right; Y and Start are Enter,
+          Back/Select is Clear, and the shoulder buttons and triggers are 1 to 4.
+        </p>
+      </section>
+
+      <p id="status">Starting...</p>
+      <nav class="emulator-links" aria-label="Emulators">
+        Emulators:
+        <a href="https://mohrt.github.io/sz81/">Timex Sinclair 1000</a>
+        <a href="https://mohrt.github.io/c64/">Commodore 64</a>
+        <a href="https://mohrt.github.io/amiga500/">Amiga 500</a>
+        <a href="https://mohrt.github.io/atari2600/">Atari 2600</a>
+        <strong aria-current="page">Intellivision</strong>
+        <a href="https://mohrt.github.io/colecovision/">ColecoVision</a>
+        <a href="https://mohrt.github.io/nes/">NES</a>
+        <a href="https://mohrt.github.io/mastersystem/">Sega Master System</a>
+        <a href="https://mohrt.github.io/genesis/">Sega Genesis</a>
+      </nav>
+      <footer class="site-links">
+        <a href="https://mohrt.com/">mohrt.com</a>
+        <a href="https://github.com/mohrt/intellivision" target="_blank" rel="noopener">Source on GitHub</a>
+        <a href="https://x.com/mohrt" target="_blank" rel="noopener">@mohrt on X</a>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
