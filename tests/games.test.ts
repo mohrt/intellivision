@@ -9,14 +9,16 @@ import { keyBit, NO_DIRECTION } from '../src/io/controllers';
 import { identifyRom, machineRoms } from '../src/roms/system-roms';
 import { framePng } from './helpers/png';
 
-// The EXEC, GROM and cartridge images are never committed. These run the free games (npm run
+// The system ROMs and cartridge images are never committed. These run the free games (npm run
 // fetch:games puts them in public/games/) and your own cartridges in roms/, given the system ROMs
-// in roms/ (exec.bin and grom.bin) or as INTV_EXEC=/path/to/exec.bin INTV_GROM=/path/to/grom.bin.
+// in roms/ (exec.bin, grom.bin and optionally ivoice.bin) or as INTV_EXEC=/path/to/exec.bin
+// INTV_GROM=/path/to/grom.bin INTV_VOICE=/path/to/ivoice.bin. Games that talk must speak.
 const root = join(import.meta.dirname, '..');
 const execPath = process.env.INTV_EXEC ?? join(root, 'roms', 'exec.bin');
 const gromPath = process.env.INTV_GROM ?? join(root, 'roms', 'grom.bin');
+const voicePath = process.env.INTV_VOICE ?? join(root, 'roms', 'ivoice.bin');
 const haveRoms = existsSync(execPath) && existsSync(gromPath);
-const systemRomNames = new Set(['exec.bin', 'grom.bin']);
+const systemRomNames = new Set(['exec.bin', 'grom.bin', 'ivoice.bin']);
 const cartridgesIn = (dir: string) =>
   existsSync(dir)
     ? readdirSync(dir)
@@ -33,14 +35,19 @@ describe.skipIf(cartridges.length === 0)('cartridges', () => {
   const load = (path: string) => new Uint8Array(readFileSync(path));
   for (const path of cartridges) {
     const name = basename(path);
-    it(`${name} turns the display on and runs its own code`, () => {
+    it(`${name} turns the display on, runs its own code and talks if it should`, () => {
       const intv = new Intellivision();
-      intv.setRoms(machineRoms({ exec: identifyRom('exec', load(execPath)), grom: identifyRom('grom', load(gromPath)) }));
+      const ivoice = existsSync(voicePath) ? identifyRom('ivoice.bin', load(voicePath)) : undefined;
+      intv.setRoms(
+        machineRoms({ exec: identifyRom('exec', load(execPath)), grom: identifyRom('grom', load(gromPath)), ivoice }),
+      );
+      intv.audio.setRates(intv.clockHz, 48000);
       const cfgPath = path.replace(/\.[^.]+$/, '.cfg');
       const image = readCartridgeImage(load(path), existsSync(cfgPath) ? readFileSync(cfgPath, 'utf8') : undefined);
       intv.insertCartridge(new Cartridge(image.layout));
       let framesInCartridge = 0;
       let framesShown = 0;
+      let framesSpeaking = 0;
       for (let frame = 1; frame <= SECONDS_TO_RUN * FPS; frame++) {
         // Press keys and buttons now and then to get past title screens.
         const second = Math.floor(frame / FPS);
@@ -53,15 +60,20 @@ describe.skipIf(cartridges.length === 0)('cartridges', () => {
         intv.runFrame();
         if (intv.cpu.pc < 0x1000 || intv.cpu.pc >= 0x2000) framesInCartridge++;
         if (intv.stic.displayEnabled) framesShown++;
+        if (!intv.voice.halted) framesSpeaking++;
+        intv.audio.takeSamples();
         if (shotsDir && (frame === 3 * FPS || frame === SECONDS_TO_RUN * FPS)) {
           mkdirSync(shotsDir, { recursive: true });
           const label = frame === 3 * FPS ? 'title' : 'game';
           writeFileSync(join(shotsDir, `${name.replace(/\.[^.]+$/, '')} - ${label}.png`), framePng(intv.stic.framebuffer));
         }
       }
-      expect(framesInCartridge).toBeGreaterThan(FPS);
+      // Games built on the EXEC spend most of their time in it while they wait for a key.
+      expect(framesInCartridge).toBeGreaterThan(0);
       expect(framesShown).toBeGreaterThan(SECONDS_TO_RUN * FPS * 0.9);
       expect(new Set(intv.stic.framebuffer).size).toBeGreaterThan(2);
+      if (image.known?.voice && ivoice) expect(framesSpeaking).toBeGreaterThan(FPS / 2);
+      else expect(framesSpeaking).toBe(0);
     }, 60_000);
   }
 });

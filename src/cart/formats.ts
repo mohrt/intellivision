@@ -182,7 +182,6 @@ export function readCartridgeImage(bytes: Uint8Array, cfgText?: string): Cartrid
     }
   }
   layout ??= parseBin(bytes, cfgText, known);
-  if (known?.voice) warnings.push('This game talks through the Intellivoice, which isn\'t emulated, so it plays without speech.');
   if (known?.ecs) warnings.push("This game needs the Entertainment Computer System, which isn't emulated.");
   return { format, layout, known, warnings };
 }

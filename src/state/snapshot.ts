@@ -36,6 +36,7 @@ const SKIPPED_FIELDS = new Set([
   'exec',
   'execAux',
   'grom',
+  'speechRom',
   'layout',
   'romImage',
   'access',

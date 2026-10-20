@@ -32,13 +32,16 @@ const REMEMBERED_SETTINGS = ['tv', 'show-keypad', 'keypad-player', 'sound', 'vol
 const MAX_FRAME_MS = 100;
 const PLAYERS = 2;
 /** The system ROMs' CRCs, to recognise one dropped on the cartridge slot. */
-const SYSTEM_ROM_CRCS = new Set([0xcbce86f7, 0x683a4158]);
+const SYSTEM_ROM_CRCS = new Set([0xcbce86f7, 0x683a4158, 0x0de7579d]);
+const ROM_LABELS = { exec: 'EXEC', grom: 'GROM', ivoice: 'Intellivoice ROM' } as const;
 
 interface CurrentCartridge {
   image: Uint8Array;
   cfg?: string;
   fileName: string;
   title: string;
+  /** Talks through the Intellivoice. */
+  talks: boolean;
 }
 
 function requireElement<T extends HTMLElement>(selector: string): T {
@@ -102,6 +105,7 @@ async function main(): Promise<void> {
     const useRoms = (roms: SystemRoms) => {
       machine.setRoms(hasRequiredRoms(roms) ? machineRoms(roms) : null);
       cartPanel.showRoms(machine.romsLoaded);
+      cartPanel.showVoicePrompt(!!current?.talks && !machine.voice.present);
       updateCanSave();
       updateStatus();
       audio?.flush();
@@ -126,7 +130,7 @@ async function main(): Promise<void> {
       await romStore.save(rom.kind, rom);
       const roms = await romStore.load();
       if (hasRequiredRoms(roms)) useRoms(roms);
-      toolbar.showMessage(`${rom.kind === 'exec' ? 'EXEC' : 'GROM'} loaded`);
+      toolbar.showMessage(`${ROM_LABELS[rom.kind]} loaded`);
     };
 
     // --- Cartridges -----------------------------------------------------------------
@@ -134,10 +138,17 @@ async function main(): Promise<void> {
       const parsed = readCartridgeImage(image, cfg);
       const cartridge = new Cartridge(parsed.layout);
       machine.insertCartridge(cartridge);
-      current = { image, cfg, fileName, title: title ?? parsed.known?.title ?? titleFromFileName(fileName.split(' from ')[0]) };
+      current = {
+        image,
+        cfg,
+        fileName,
+        title: title ?? parsed.known?.title ?? titleFromFileName(fileName.split(' from ')[0]),
+        talks: !!parsed.known?.voice,
+      };
       emulator.resetTiming();
       audio?.flush();
       cartPanel.showCartridge(current.title, fileName, describeImage(parsed, cartridge));
+      cartPanel.showVoicePrompt(current.talks && !machine.voice.present);
       if (parsed.warnings.length) cartPanel.showMessage(parsed.warnings.join(' '), true);
       updateCanSave();
       updateStatus();
@@ -200,6 +211,7 @@ async function main(): Promise<void> {
       },
       onGame: (index) => fetchGame(import.meta.env.BASE_URL, bundledGames[index]),
       onEject: eject,
+      onAddVoice: () => void openRomSetup(true),
       focusScreen,
     });
 

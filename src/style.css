@@ -440,6 +440,21 @@ input[type='range'] {
   color: #999;
 }
 
+.voice-prompt:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem !important;
+  font-size: 0.85rem;
+  color: #c9a227;
+}
+
+.cart-panel.drag-over .voice-prompt {
+  display: none;
+}
+
 .cart-drop-hint {
   display: none;
   font-size: 1.05rem;

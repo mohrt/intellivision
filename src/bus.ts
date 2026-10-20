@@ -2,11 +2,13 @@ import type { Cartridge } from './cart/cartridge';
 import type { CpuBus } from './cpu/cp1610';
 import type { Controllers } from './io/controllers';
 import type { Ay8914 } from './sound/ay8914';
+import type { Sp0256 } from './sound/sp0256';
 import type { Stic } from './stic/stic';
 
 export const SCRATCH_RAM = 0x0100;
 export const SCRATCH_RAM_SIZE = 0xf0;
 export const PSG_BASE = 0x01f0;
+export const VOICE_BASE = 0x0080;
 export const SYSTEM_RAM = 0x0200;
 export const SYSTEM_RAM_SIZE = 0x160;
 export const EXEC_BASE = 0x1000;
@@ -15,6 +17,7 @@ export const EXEC_BASE = 0x1000;
  * The Intellivision's memory map:
  *
  *   $0000-$003F  STIC registers (aliased at $4000, $8000 and $C000 for writes)
+ *   $0080-$0081  the Intellivoice, when it's plugged in
  *   $0100-$01EF  8-bit scratchpad RAM
  *   $01F0-$01FD  AY-3-8914 sound chip; $01FE/$01FF the hand controllers
  *   $0200-$035F  16-bit system RAM; BACKTAB is its first 240 words
@@ -33,20 +36,29 @@ export class IntellivisionBus implements CpuBus {
   cartridge: Cartridge | null = null;
   /** The bus cycle of the instruction running now, for the STIC's access windows. */
   now = 0;
-  /** Called before a write to the sound chip, so its output so far uses the old settings. */
+  /** Called before the sound chips are reached, so they have run up to now first. */
   beforeSound: () => void = () => {};
 
   constructor(
     private readonly stic: Stic,
     private readonly psg: Ay8914,
+    private readonly voice: Sp0256,
     private readonly controllers: Controllers,
   ) {}
+
+  private isVoice(address: number): boolean {
+    return (address === VOICE_BASE || address === VOICE_BASE + 1) && this.voice.present;
+  }
 
   read(address: number): number {
     address &= 0xffff;
     const cartridge = this.cartridge;
     if (address < 0x1000) {
       if (address < 0x80) return this.stic.readRegister(address, this.now);
+      if (this.isVoice(address)) {
+        this.beforeSound();
+        return this.voice.read(address - VOICE_BASE);
+      }
       if (address >= SCRATCH_RAM && address < SCRATCH_RAM + SCRATCH_RAM_SIZE) return this.scratchRam[address - SCRATCH_RAM];
       if (address >= PSG_BASE && address < SYSTEM_RAM) {
         return address >= 0x1fe ? this.controllers.read((address & 1) as 0 | 1) : this.psg.read(address - PSG_BASE);
@@ -67,7 +79,10 @@ export class IntellivisionBus implements CpuBus {
     value &= 0xffff;
     if (address < 0x1000) {
       if (address < 0x80) this.stic.writeRegister(address, value, this.now);
-      else if (address >= SCRATCH_RAM && address < SCRATCH_RAM + SCRATCH_RAM_SIZE) this.scratchRam[address - SCRATCH_RAM] = value;
+      else if (this.isVoice(address)) {
+        this.beforeSound();
+        this.voice.write(address - VOICE_BASE, value);
+      } else if (address >= SCRATCH_RAM && address < SCRATCH_RAM + SCRATCH_RAM_SIZE) this.scratchRam[address - SCRATCH_RAM] = value;
       else if (address >= PSG_BASE && address < 0x1fe) {
         this.beforeSound();
         this.psg.write(address - PSG_BASE, value);

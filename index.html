@@ -39,9 +39,22 @@
               <p class="rom-names">Often named <code>grom.bin</code> or <code>grom.rom</code></p>
               <p class="rom-status"></p>
             </li>
+            <li data-rom="ivoice" class="optional">
+              <p class="rom-heading"><strong>Intellivoice ROM</strong> <span class="rom-need">Optional</span></p>
+              <p class="rom-detail">
+                The speech chip in Mattel's Intellivoice module, for the few games that talk (B-17 Bomber, Space
+                Spartans, Bomb Squad, TRON Solar Sailer...). Exactly 2 KB (2,048 bytes); Mattel's has the CRC-32
+                checksum <code>0DE7579D</code>. Without it, those games play without speech.
+              </p>
+              <p class="rom-names">
+                Often named <code>ivoice.bin</code>, <code>IVOICE.BIN</code>, <code>sp0256-012.bin</code> or
+                <code>IntelliVoice BIOS (1981) (Mattel).int</code>
+              </p>
+              <p class="rom-status"></p>
+            </li>
           </ul>
           <p class="rom-tip">
-            Pick both files at once, or a .zip containing them (MAME's <code>intv.zip</code> works). These are not
+            Pick the files at once, or a .zip containing them (MAME's <code>intv.zip</code> works). These are not
             games: once the console is on, cartridge images (<code>.rom</code>, <code>.bin</code>, <code>.int</code>)
             go in the cartridge slot below the screen.
           </p>
@@ -108,6 +121,10 @@
           </p>
           <p class="game-info"></p>
         </div>
+        <p class="voice-prompt" hidden>
+          This game talks through the Intellivoice. Without its ROM it plays without speech.
+          <button type="button" data-action="add-voice">Add the Intellivoice ROM...</button>
+        </p>
         <p class="cart-drop-hint">Release to insert</p>
         <p class="cart-message" role="status"></p>
         <input type="file" name="cart-file" accept=".rom,.bin,.int,.itv,.zip,.intvstate" hidden />

@@ -60,7 +60,8 @@ export function askForRoms(
       const rom = roms[kind];
       const warning = warnings.get(kind);
       row.dataset.state = rom ? (warning ? 'warning' : 'loaded') : 'missing';
-      status.textContent = rom ? `Loaded: ${rom.name}${warning ? ` (${warning})` : ''}` : 'Not loaded yet';
+      const missing = row.classList.contains('optional') ? 'Not loaded (optional)' : 'Not loaded yet';
+      status.textContent = rom ? `Loaded: ${rom.name}${warning ? ` (${warning})` : ''}` : missing;
     }
     startButton.disabled = !hasRequiredRoms(roms);
     forgetButton.hidden = !ROM_KINDS.some((kind) => roms[kind]);

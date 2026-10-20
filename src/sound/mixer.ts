@@ -1,14 +1,18 @@
 import type { Ay8914 } from './ay8914';
+import type { Sp0256 } from './sp0256';
 
 /** The PSG's counters step once every 4 CPU cycles. */
 export const CPU_CYCLES_PER_TICK = 4;
 const GAIN = 0.6 / 3;
+/** Full-scale speech is as loud as all three PSG channels at full volume. */
+const SPEECH_GAIN = 0.6;
 /** A gentle high-pass that takes away the chip's DC offset. */
 const DC_BLOCK = 0.995;
 
 /**
- * Runs the sound chip in step with the CPU and resamples its output to the
- * audio device's rate, averaging the chip steps that fall in each sample.
+ * Runs the sound chips in step with the CPU and resamples their output to the
+ * audio device's rate, averaging the steps that fall in each sample. The
+ * Intellivoice's 10 kHz speech is held between its samples.
  */
 export class AudioMixer {
   private cyclePhase = 0;
@@ -21,18 +25,27 @@ export class AudioMixer {
   private buffer = new Float32Array(4096);
   private length = 0;
 
-  constructor(private readonly psg: Ay8914) {}
+  constructor(
+    private readonly psg: Ay8914,
+    private readonly voice: Sp0256,
+  ) {}
 
   setRates(cpuHz: number, sampleRate: number): void {
     this.ticksPerSample = cpuHz / CPU_CYCLES_PER_TICK / sampleRate;
   }
 
-  /** Advances the chip by `cycles` CPU cycles. */
+  /** Advances the chips by `cycles` CPU cycles. */
   run(cycles: number): void {
     this.cyclePhase += cycles;
+    const speaking = this.voice.present;
     while (this.cyclePhase >= CPU_CYCLES_PER_TICK) {
       this.cyclePhase -= CPU_CYCLES_PER_TICK;
-      this.sum += this.psg.tick() * GAIN;
+      let level = this.psg.tick() * GAIN;
+      if (speaking) {
+        this.voice.run(CPU_CYCLES_PER_TICK);
+        level += this.voice.output * SPEECH_GAIN;
+      }
+      this.sum += level;
       this.count++;
       this.position++;
       if (this.position >= this.ticksPerSample) {

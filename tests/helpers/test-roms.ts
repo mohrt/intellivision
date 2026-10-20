@@ -27,5 +27,5 @@ export function testRoms(): MachineRoms {
   );
   // Card n of the GROM is n's bit pattern on every row.
   const grom = Uint8Array.from({ length: 0x800 }, (_, i) => i >> 3);
-  return { exec, execAux: null, grom };
+  return { exec, execAux: null, grom, speech: null };
 }

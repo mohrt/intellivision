@@ -8,6 +8,7 @@ A Mattel Intellivision emulator written from scratch in TypeScript:
 - **STIC video:** the background table in Color Stack mode (including Colored Squares cards) and Foreground/Background mode, GROM and GRAM cards, the eight moving objects with their sizes, flips and priority, the delay registers and edge masking, and the collision registers (between objects, with the background and with the border).
 - **Timing:** the STIC's frame as jzIntv measured it: the interrupt at the start of vertical blank, the windows in which the CPU can reach the STIC's registers and GRAM, and the bus requests that stop the CPU while the STIC fetches each row of cards. A frame with no write to the display-enable register is blank.
 - **Sound:** the AY-3-8914, with its envelope scaling and noise.
+- **Intellivoice:** the SP0256 speech chip and its 64-decle FIFO, for the games that talk. It matches jzIntv's Intellivoice sample for sample, from its own ROM and from the FIFO.
 - **Hand controllers:** both, with the 16-direction disc, the 12-key keypad and the action buttons.
 
 Drop a `.rom`, `.bin` or `.int` file (or a `.zip` containing one) onto the page to play it.
@@ -18,8 +19,9 @@ Every Intellivision game runs on the console's Executive ROM (EXEC) and draws wi
 
 - **EXEC:** exactly 8,192 bytes, often called `exec.bin`. Mattel's has the CRC-32 `CBCE86F7`. Intellivision II dumps of 8,704 bytes work too.
 - **GROM:** exactly 2,048 bytes, often called `grom.bin`. Mattel's has the CRC-32 `683A4158`.
+- **Intellivoice ROM** (optional): the speech chip's 2,048-byte ROM, often called `ivoice.bin`, with the CRC-32 `0DE7579D`. Only the few games that talk need it (B-17 Bomber, Space Spartans, Bomb Squad, TRON Solar Sailer and some homebrews); without it they play without speech, and the cartridge panel offers to add it.
 
-Both can be chosen at once, or as a `.zip` (MAME's `intv.zip` works). They are kept in the browser's storage, so later visits start straight away. **System ROMs...** in the toolbar replaces or forgets them. ROMs other than Mattel's are accepted after a warning.
+They can be chosen at once, or as a `.zip` (MAME's `intv.zip` works). They are kept in the browser's storage, so later visits start straight away. **System ROMs...** in the toolbar replaces or forgets them. ROMs other than Mattel's are accepted after a warning.
 
 No commercial games are included either. Use images of cartridges you own, or homebrews whose authors allow it.
 
@@ -47,7 +49,7 @@ No commercial games are included either. Use images of cartridges you own, or ho
 
 The toolbar has pause, the console's reset button, power cycle, full screen and the TV standard (NTSC or PAL). Save states keep the whole console, cartridge included, in the browser. They can be exported and imported as `.intvstate` files.
 
-Not covered: the Intellivoice (games that talk play without speech), the Entertainment Computer System, the Keyboard Component, paged and bank-switched ROMs, and JLP's accelerators and flash saves.
+Not covered: the Entertainment Computer System, the Keyboard Component, paged and bank-switched ROMs, and JLP's accelerators and flash saves.
 
 ## Development
 
@@ -59,7 +61,7 @@ npm test
 npm run build:carts     # rebuilds src/cart/known-carts.ts from its pinned sources
 ```
 
-`npm test` also boots the free games and any cartridges you put in `roms/` (never committed), given your own system ROMs there as `exec.bin` and `grom.bin`, or as `INTV_EXEC=/path/to/exec.bin INTV_GROM=/path/to/grom.bin`. A `.bin` there takes the `.cfg` with the same name. `SHOTS=/tmp/shots npm test` saves screenshots.
+`npm test` also boots the free games and any cartridges you put in `roms/` (never committed), given your own system ROMs there as `exec.bin`, `grom.bin` and (for speech) `ivoice.bin`, or as `INTV_EXEC=/path/to/exec.bin INTV_GROM=/path/to/grom.bin INTV_VOICE=/path/to/ivoice.bin`. Games that talk must speak. A `.bin` there takes the `.cfg` with the same name. `SHOTS=/tmp/shots npm test` saves screenshots.
 
 ## Deploying
 

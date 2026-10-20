@@ -15,6 +15,8 @@ export interface CartPanelCallbacks {
   /** Downloads one of the free games. */
   onGame(index: number): Promise<File>;
   onEject(): void;
+  /** Opens the system ROM setup to add the Intellivoice's ROM. */
+  onAddVoice(): void;
   focusScreen(): void;
 }
 
@@ -63,6 +65,7 @@ export class CartPanel {
       this.callbacks.onEject();
       this.callbacks.focusScreen();
     });
+    requireChild<HTMLButtonElement>(root, '[data-action="add-voice"]').addEventListener('click', () => this.callbacks.onAddVoice());
     this.attachDragAndDrop();
   }
 
@@ -115,6 +118,12 @@ export class CartPanel {
   showEmpty(): void {
     this.root.dataset.state = 'empty';
     this.setZipFiles([], null);
+    this.showVoicePrompt(false);
+  }
+
+  /** Offers the Intellivoice ROM for a game that talks. */
+  showVoicePrompt(show: boolean): void {
+    requireChild<HTMLElement>(this.root, '.voice-prompt').hidden = !show;
   }
 
   /** Whether the console has its system ROMs (without them, the slot is hidden). */

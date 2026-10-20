@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AY_VOLUMES, Ay8914 } from '../src/sound/ay8914';
 import { AudioMixer } from '../src/sound/mixer';
+import { Sp0256 } from '../src/sound/sp0256';
 
 function chip(): Ay8914 {
   const psg = new Ay8914();
@@ -101,7 +102,7 @@ describe('audio mixer', () => {
   it('turns the chip into samples at the output rate, without a DC offset', () => {
     const psg = chip();
     toneOnA(psg, 254);
-    const mixer = new AudioMixer(psg);
+    const mixer = new AudioMixer(psg, new Sp0256());
     const clockHz = 3_579_545 / 4;
     mixer.setRates(clockHz, 48000);
     mixer.run(clockHz);

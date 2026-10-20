@@ -5,6 +5,7 @@ import { Controllers } from './io/controllers';
 import type { MachineRoms } from './roms/system-roms';
 import { Ay8914 } from './sound/ay8914';
 import { AudioMixer } from './sound/mixer';
+import { Sp0256 } from './sound/sp0256';
 import { captureState, restoreState, type StateNode } from './state/snapshot';
 import { Stic } from './stic/stic';
 
@@ -44,16 +45,18 @@ const enum Phase {
 
 /**
  * The whole console: CP1610, STIC, AY-3-8914, the RAMs, two hand controllers,
- * the EXEC and GROM, and the cartridge. Time is counted in CPU cycles; the
+ * the EXEC and GROM, and the cartridge, with the Intellivoice when its ROM is given. Time is counted in CPU cycles; the
  * STIC's frame is a series of timed phases between which the CPU runs.
  */
 export class Intellivision {
   readonly stic = new Stic();
   readonly psg = new Ay8914();
+  /** The Intellivoice; it answers only once its ROM is given. */
+  readonly voice = new Sp0256();
   readonly controllers = new Controllers();
-  readonly bus = new IntellivisionBus(this.stic, this.psg, this.controllers);
+  readonly bus = new IntellivisionBus(this.stic, this.psg, this.voice, this.controllers);
   readonly cpu = new Cp1610(this.bus);
-  readonly audio = new AudioMixer(this.psg);
+  readonly audio = new AudioMixer(this.psg, this.voice);
   tv: TvStandard = 'ntsc';
   /** CPU cycles since power on. */
   now = 0;
@@ -95,11 +98,12 @@ export class Intellivision {
     return this.bus.cartridge;
   }
 
-  /** The EXEC and GROM, or null to take them out. */
+  /** The EXEC and GROM (and the Intellivoice's ROM, if given), or null to take them out. */
   setRoms(roms: MachineRoms | null): void {
     this.bus.exec = roms?.exec ?? null;
     this.bus.execAux = roms?.execAux ?? null;
     this.stic.grom = roms?.grom ?? new Uint8Array(0x800);
+    this.voice.speechRom = roms?.speech ?? null;
     this.hasRoms = roms !== null;
     this.reset();
   }
@@ -129,6 +133,7 @@ export class Intellivision {
     this.cpu.reset();
     this.stic.reset();
     this.psg.reset();
+    this.voice.reset();
     this.restartTiming();
   }
 

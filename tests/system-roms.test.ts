@@ -14,9 +14,24 @@ describe('system ROMs', () => {
     expect(() => identifyRom('d', new Uint8Array(1000))).toThrow(/8,192 bytes/);
   });
 
+  it('takes a 2K file named like it for the optional Intellivoice ROM, which the console can do without', () => {
+    expect(identifyRom('IntelliVoice BIOS (1981) (Mattel).int', new Uint8Array(0x800)).kind).toBe('ivoice');
+    expect(identifyRom('sp0256-012.bin', new Uint8Array(0x800)).kind).toBe('ivoice');
+    const exec = { name: 'e', data: new Uint8Array(0x2000) };
+    const grom = { name: 'g', data: new Uint8Array(0x800) };
+    expect(hasRequiredRoms({ exec, grom })).toBe(true);
+    expect(machineRoms({ exec, grom }).speech).toBeNull();
+    const speech = new Uint8Array(0x800).fill(9);
+    expect(machineRoms({ exec, grom, ivoice: { name: 'v', data: speech } }).speech?.[0]).toBe(9);
+  });
+
   it.skipIf(!existsSync(local('exec.bin')) || !existsSync(local('grom.bin')))('recognises Mattel\'s ROMs by checksum', () => {
     expect(identifyRom('x', new Uint8Array(readFileSync(local('exec.bin'))))).toMatchObject({ kind: 'exec', warning: null });
     expect(identifyRom('y', new Uint8Array(readFileSync(local('grom.bin'))))).toMatchObject({ kind: 'grom', warning: null });
+    if (existsSync(local('ivoice.bin'))) {
+      // Recognised even under a name that doesn't say what it is.
+      expect(identifyRom('z.bin', new Uint8Array(readFileSync(local('ivoice.bin'))))).toMatchObject({ kind: 'ivoice', warning: null });
+    }
   });
 
   it('maps the EXEC as 10-bit big-endian words, with the extra 256 of an Intellivision II EXEC at $0400', () => {
@@ -39,9 +54,11 @@ describe('system ROMs', () => {
     await store.save('exec', { name: 'exec.bin', data: new Uint8Array(0x2000) });
     expect(hasRequiredRoms(await new SystemRomStore(backing).load())).toBe(false);
     await store.save('grom', { name: 'grom.bin', data: new Uint8Array(0x800) });
+    await store.save('ivoice', { name: 'ivoice.bin', data: new Uint8Array(0x800) });
     const loaded = await new SystemRomStore(backing).load();
     expect(hasRequiredRoms(loaded)).toBe(true);
     expect(loaded.grom?.name).toBe('grom.bin');
+    expect(loaded.ivoice?.name).toBe('ivoice.bin');
     await store.forget();
     expect(await store.load()).toEqual({});
   });
