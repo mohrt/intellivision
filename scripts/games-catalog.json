@@ -1,4 +1,18 @@
 {
+  "sources": {
+    "jzintv": {
+      "repo": "https://github.com/FujiNetWIFI/jzintv.git",
+      "commit": "2b1aab8e279df18fb1b9704c2105fddbbabbb494"
+    },
+    "intybasic": {
+      "repo": "https://github.com/nanochess/IntyBASIC.git",
+      "commit": "606e128a7bb794c8a02e7650742dd60ca8e31434"
+    },
+    "intybasicprogs": {
+      "repo": "https://github.com/HNE74/Intybasicprogs.git",
+      "commit": "15facec0c1b7d51b1e81e8f12cb4c11d91fd3c0e"
+    }
+  },
   "games": [
     {
       "title": "4-Tris",
@@ -32,6 +46,110 @@
       "licenseFile": "https://raw.githubusercontent.com/marcomarrero/SpaceVersus-IntyBasic/49eb66a6a85e7483ee25e135f3f6c469ad27d4fe/LICENSE",
       "sourceUrl": "https://github.com/marcomarrero/SpaceVersus-IntyBasic",
       "hint": "A space duel against the computer or a second player, second in AtariAge's IntyBASIC contest: 1 or 2 for the number of players, Enter for the options. The disc moves your ship and the action buttons fire."
+    },
+    {
+      "title": "Space Patrol",
+      "file": "space-patrol.rom",
+      "build": {
+        "source": "jzintv",
+        "dir": "examples/spacepat",
+        "make": "bin/sdk1600_spacepat.rom",
+        "makeDirs": ["exe", "genasm"]
+      },
+      "credit": "Joe Zbiciak, Arnauld Chevallier (music) and David Harley",
+      "license": "GNU GPL v2 or later",
+      "licenseFile": "https://raw.githubusercontent.com/FujiNetWIFI/jzintv/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/spacepat/COPYING.txt",
+      "sourceUrl": "https://github.com/FujiNetWIFI/jzintv/tree/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/spacepat",
+      "hint": "Drive a moon buggy over craters and rocks while saucers attack. Left and right on the disc choose the world and up and down the course, then an action button starts. In the game the disc's right speeds up and left slows down, the top action button fires and the lower ones jump."
+    },
+    {
+      "title": "Tag-Along Todd 2",
+      "file": "tag-along-todd-2.rom",
+      "build": {
+        "source": "jzintv",
+        "dir": "examples/tagalong2",
+        "asm": "tagalong2.asm",
+        "include": ["../library", "../macro"]
+      },
+      "credit": "Joe Zbiciak",
+      "license": "GNU GPL v2 or later",
+      "licenseFile": "https://raw.githubusercontent.com/FujiNetWIFI/jzintv/2b1aab8e279df18fb1b9704c2105fddbbabbb494/COPYING.txt",
+      "sourceUrl": "https://github.com/FujiNetWIFI/jzintv/tree/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/tagalong2",
+      "hint": "Pick up the pop cans in the yard without letting Todd catch you. Choose the skill and length with the keypad, Enter moves to the next line and starts. The disc walks."
+    },
+    {
+      "title": "Tank",
+      "file": "tank.rom",
+      "build": {
+        "source": "jzintv",
+        "dir": "examples/tank",
+        "asm": "tank.asm",
+        "include": ["../library", "../macro"]
+      },
+      "credit": "Joe Zbiciak",
+      "license": "GNU GPL v2 or later",
+      "licenseFile": "https://raw.githubusercontent.com/FujiNetWIFI/jzintv/2b1aab8e279df18fb1b9704c2105fddbbabbb494/COPYING.txt",
+      "sourceUrl": "https://github.com/FujiNetWIFI/jzintv/tree/2b1aab8e279df18fb1b9704c2105fddbbabbb494/examples/tank",
+      "hint": "An artillery duel for two players, one controller each. The disc drives, the lower action buttons turn the gun, 1-9 set the strength (Clear, 0 and Enter are 10) and the top action button fires."
+    },
+    {
+      "title": "Pumpkin Master",
+      "file": "pumpkin-master.rom",
+      "build": { "source": "intybasic", "dir": "samples", "bas": "pumpkin_master.bas" },
+      "credit": "Oscar Toledo G. (nanochess)",
+      "license": "BSD 2-Clause",
+      "licenseFile": "https://raw.githubusercontent.com/nanochess/IntyBASIC/606e128a7bb794c8a02e7650742dd60ca8e31434/LICENSE",
+      "sourceUrl": "https://github.com/nanochess/IntyBASIC/blob/606e128a7bb794c8a02e7650742dd60ca8e31434/samples/pumpkin_master.bas",
+      "hint": "Halloween waves of pumpkins to shoot from your house. Any button starts, the disc moves left and right and the action buttons fire."
+    },
+    {
+      "title": "IntyPak",
+      "file": "intypak.rom",
+      "build": { "source": "intybasic", "dir": "samples", "bas": "pak.bas" },
+      "credit": "Oscar Toledo G. (nanochess)",
+      "license": "BSD 2-Clause",
+      "licenseFile": "https://raw.githubusercontent.com/nanochess/IntyBASIC/606e128a7bb794c8a02e7650742dd60ca8e31434/LICENSE",
+      "sourceUrl": "https://github.com/nanochess/IntyBASIC/blob/606e128a7bb794c8a02e7650742dd60ca8e31434/samples/pak.bas",
+      "hint": "Eat every dot in the maze while the ghosts chase you. An action button starts and the disc steers."
+    },
+    {
+      "title": "IntyLander",
+      "file": "intylander.rom",
+      "build": { "source": "intybasic", "dir": "samples", "bas": "lander.bas" },
+      "credit": "Oscar Toledo G. (nanochess)",
+      "license": "BSD 2-Clause",
+      "licenseFile": "https://raw.githubusercontent.com/nanochess/IntyBASIC/606e128a7bb794c8a02e7650742dd60ca8e31434/LICENSE",
+      "sourceUrl": "https://github.com/nanochess/IntyBASIC/blob/606e128a7bb794c8a02e7650742dd60ca8e31434/samples/lander.bas",
+      "hint": "Land gently on the pad before the fuel runs out. 1-4 choose the difficulty, the action buttons fire the thruster and the disc steers left and right."
+    },
+    {
+      "title": "Barzack",
+      "file": "barzack.rom",
+      "build": { "source": "intybasic", "dir": "samples", "bas": "game2.bas" },
+      "credit": "Oscar Toledo G. (nanochess)",
+      "license": "BSD 2-Clause",
+      "licenseFile": "https://raw.githubusercontent.com/nanochess/IntyBASIC/606e128a7bb794c8a02e7650742dd60ca8e31434/LICENSE",
+      "sourceUrl": "https://github.com/nanochess/IntyBASIC/blob/606e128a7bb794c8a02e7650742dd60ca8e31434/samples/game2.bas",
+      "hint": "Escape room after room of robots and electrified walls. The disc moves you; leaving through a door scores a point."
+    },
+    {
+      "title": "Snatch",
+      "file": "snatch.rom",
+      "build": {
+        "source": "intybasicprogs",
+        "dir": "snatch",
+        "bas": "snatch.bas",
+        "fixes": [
+          { "file": "constants.bas", "find": "CONST SHIELD = $0807 + 14 * 8\n", "replace": "" },
+          { "file": "snatch.bas", "find": "else if game_state=GAME_STATE_PROCEED", "replace": "if game_state=GAME_STATE_PROCEED" },
+          { "file": "procedures.bas", "find": "elseif enemy_x<player_x and frame_cnt%2=0 \t", "replace": "elseif enemy_x<player_x and frame_cnt%2=0 then" }
+        ]
+      },
+      "credit": "Noltisoft (HNE74)",
+      "license": "GNU GPL v3",
+      "licenseFile": "https://raw.githubusercontent.com/HNE74/Intybasicprogs/15facec0c1b7d51b1e81e8f12cb4c11d91fd3c0e/snatch/LICENSE",
+      "sourceUrl": "https://github.com/HNE74/Intybasicprogs/tree/15facec0c1b7d51b1e81e8f12cb4c11d91fd3c0e/snatch",
+      "hint": "Grab the treasure chests while dodging the guard's shots. An action button starts and raises one of your three shields; the disc moves. Built with three small fixes so it compiles with IntyBASIC 1.5.1."
     }
   ]
 }

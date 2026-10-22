@@ -33,11 +33,15 @@ No commercial games are included either. Use images of cartridges you own, or ho
 
 ## Free games
 
-`npm run fetch:games` downloads the freely licensed games listed in `scripts/games-catalog.json` into `public/games/`, where they appear in a "Free games" picker. Each entry has its credit, licence, source and checksum:
+`npm run fetch:games` puts the freely licensed games listed in `scripts/games-catalog.json` into `public/games/`, where they appear in a "Free games" picker. Each entry has its credit, licence and source. Games published as ROMs are downloaded and checked against their checksum. Games published only as source are built from a pinned commit with jzIntv's `as1600` assembler and the IntyBASIC compiler, which are built from source too. This needs git, make and a C/C++ compiler.
 
 - **4-Tris** by Joe Zbiciak (GNU GPL v2), falling blocks.
 - **Runner-Z** by Josue (GNU GPL v3), a lane-changing runner written in IntyBASIC.
 - **Space Versus** by Marco A. Marrero (MIT), a space duel for one or two players, second in AtariAge's IntyBASIC contest.
+- **Space Patrol** by Joe Zbiciak, Arnauld Chevallier and David Harley (GNU GPL v2 or later), a moon buggy over craters and under saucers. This is the SDK-1600 build from jzIntv's examples.
+- **Tag-Along Todd 2** and **Tank** by Joe Zbiciak (GNU GPL v2 or later), from jzIntv's examples: collect the pop cans without Todd catching you, and an artillery duel for two players.
+- **Pumpkin Master**, **IntyPak**, **IntyLander** and **Barzack** by Oscar Toledo G. (BSD 2-Clause), from IntyBASIC's samples: a pumpkin shooter, a maze chase, a lunar lander and a robot-filled escape.
+- **Snatch** by Noltisoft (GNU GPL v3), a treasure grab written in IntyBASIC. Three small fixes let it compile with IntyBASIC 1.5.1: a constant defined twice, an `else if` after a one-line `if`, and an `elseif` missing its `then`.
 
 ## Controls
 
@@ -55,7 +59,7 @@ Not covered: the Entertainment Computer System, the Keyboard Component, paged an
 
 ```sh
 npm install
-npm run fetch:games     # optional: the free games into public/games/
+npm run fetch:games     # optional: the free games into public/games/ (needs git, make, cc)
 npm run dev             # http://localhost:5173
 npm test
 npm run build:carts     # rebuilds src/cart/known-carts.ts from its pinned sources
@@ -65,4 +69,4 @@ npm run build:carts     # rebuilds src/cart/known-carts.ts from its pinned sourc
 
 ## Deploying
 
-`.github/workflows/pages.yml` downloads the free games, tests and builds the site, and deploys it to GitHub Pages on every push to `main` (Pages source: "GitHub Actions").
+`.github/workflows/pages.yml` downloads and builds the free games, tests and builds the site, and deploys it to GitHub Pages on every push to `main` (Pages source: "GitHub Actions").
