@@ -1,3 +1,4 @@
+import { trackGameLoaded } from './analytics';
 import { AudioOutput } from './audio/audio-output';
 import { Cartridge } from './cart/cartridge';
 import { readCartridgeImage, type CartridgeImage } from './cart/formats';
@@ -208,6 +209,7 @@ async function main(): Promise<void> {
         const bundled = bundledGames.find((entry) => entry.file === picked.file.name);
         const label = fromZip ? `${picked.file.name} from ${game.file.name}` : picked.file.name;
         insertImage(media.image, label, media.cfg, bundled?.title);
+        trackGameLoaded('intellivision', bundled?.title);
       },
       onGame: (index) => fetchGame(import.meta.env.BASE_URL, bundledGames[index]),
       onEject: eject,
