@@ -75,7 +75,8 @@ body.needs-roms #screen,
 body.needs-roms .toolbar,
 body.needs-roms .paused-label,
 body.needs-roms .cart-panel,
-body.needs-roms .controls {
+body.needs-roms .controls,
+body.needs-roms .keypad {
   display: none !important;
 }
 
@@ -572,7 +573,7 @@ input[type='range'] {
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
-  margin-top: 0.75rem;
+  margin-top: 0;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
@@ -672,4 +673,14 @@ input[type='range'] {
   color: #777;
   font-size: 0.8rem;
   text-align: center;
+}
+
+@media (max-width: 900px) {
+  main {
+    justify-content: flex-start;
+  }
+
+  body:has(.keypad:not([hidden])) {
+    --screen-width: min(96vw, calc((100dvh - 18rem) * var(--screen-aspect)));
+  }
 }
